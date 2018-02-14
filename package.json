@@ -11,10 +11,12 @@
   "author": "Jerry Tamlander",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",
     "dotenv": "^5.0.0",
     "express": "^4.16.2",
+    "express-session": "^1.15.6",
     "mongoose": "^5.0.4"
   },
   "devDependencies": {
