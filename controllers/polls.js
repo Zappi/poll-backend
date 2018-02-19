@@ -23,12 +23,17 @@ pollsRouter.post('/', async (req, res) => {
         res.status(400).json({ error: 'content missing' })
     }
 
+    if(body.options.length > 5) {
+        return res.status(400).send({error: 'No more than 5 options is allowed'})
+    }
+
+    try {
+
     const poll = await
         new Poll({
             question: body.question,
             options: body.options,
             likes: 0,
-            dateAdded: body.dateAdded
         })
 
     poll
@@ -36,6 +41,29 @@ pollsRouter.post('/', async (req, res) => {
         .then(poll => {
             res.json(formatPoll(poll))
         })
+    } catch (e) {
+        console.log(e)
+    }  
+})
+
+pollsRouter.put('/:id', async(req, res) => {
+
+    try {
+
+        const newPoll = req.body
+    
+        const id = req.params.id
+        const poll = await Poll.findById(id) 
+
+        await Poll.findByIdAndUpdate(id, newPoll)
+        const updatedPoll = await Poll.findById(id)
+        res.status(201).json(updatedPoll)
+
+    } catch (e) {
+        console.log(e)
+        res.status(400).send({error: 'Could not update the poll'})
+    }
+
 })
 
 pollsRouter.delete('/:id', async (req, res) => {
