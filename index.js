@@ -5,6 +5,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const mongoose = require('mongoose')
 const pollsRouter = require('./controllers/polls')
+const userRouter = require('./controllers/users')
 
 const config = require('./utils/config')
 
@@ -16,6 +17,7 @@ app.use(bodyParser.json())
 app.use(cors())
 
 app.use('/api/polls', pollsRouter)
+app.use('/api/users', userRouter)
 
 const server = http.createServer(app)
 

@@ -1,5 +1,6 @@
 const pollsRouter = require('express').Router()
 const Poll = require('../models/poll')
+const User = require('../models/user')
 const formatPoll = require('../utils/poll-format')
 
 pollsRouter.get('/', async (req, res) => {
@@ -29,18 +30,22 @@ pollsRouter.post('/', async (req, res) => {
 
     try {
 
+    const user = await User.findById(body.userId);
+
     const poll = await
         new Poll({
             question: body.question,
             options: body.options,
             likes: 0,
+            user: user._id
         })
 
-    poll
-        .save()
-        .then(poll => {
-            res.json(formatPoll(poll))
-        })
+    const savedPoll = await poll.save()
+    user.polls = user.polls.concat(savedPoll._id)
+    await user.save()
+
+    res.json(formatPoll(savedPoll))
+
     } catch (e) {
         console.log(e)
     }  
