@@ -11,3 +11,8 @@ const User = mongoose.model('User', {
 })
 
 module.exports = User
+
+
+module.exports.getUserById = (id, callback) => {
+    User.findById(id, callback);
+}
