@@ -23,7 +23,7 @@ authenticationRouter.post('/', async (req, res) => {
     const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET, {
         expiresIn: 604800
     })
-
+    
     res.json({
         success: true,
         token: 'JWT ' + token,

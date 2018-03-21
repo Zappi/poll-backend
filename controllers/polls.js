@@ -2,8 +2,16 @@ const pollsRouter = require('express').Router()
 const Poll = require('../models/poll')
 const User = require('../models/user')
 const formatPoll = require('../utils/poll-format')
+const passport = require('passport')
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcryptjs')
 
-pollsRouter.get('/', async (req, res) => {
+const getTokenFromRequest = (req) => {
+    const token = req.headers['authorization'].replace(/^JWT\s/, '');
+    return token
+}
+
+pollsRouter.get('/',  async (req, res) => {
     const polls = await Poll
         .find({})
         .populate('user',{username: 1, name:1})
@@ -19,7 +27,7 @@ pollsRouter.get('/:id', async (req, res) => {
     }
 })
 
-pollsRouter.post('/', async (req, res) => {
+pollsRouter.post('/',  passport.authenticate('jwt', { session: false }), async (req, res) => {
     const body = req.body
 
     if (body.question === undefined) {
@@ -32,8 +40,14 @@ pollsRouter.post('/', async (req, res) => {
 
     try {
 
-        const user = await User.findById(body.userId);
+        const token = getTokenFromRequest(req)
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET)
+        
+        const userId = Object.values(decodedToken)[2]
 
+        const user = await User.findById(userId);
+    
+    
         const poll = await
             new Poll({
                 question: body.question,
