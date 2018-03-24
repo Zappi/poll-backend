@@ -38,7 +38,7 @@ authenticationRouter.post('/', async (req, res) => {
 })
 
 authenticationRouter.get('/profile', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-    res.json({ user: req.user })
+    res.json({ payload: req.user })
 })
 
 module.exports = authenticationRouter
