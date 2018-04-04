@@ -11,14 +11,30 @@ const getTokenFromRequest = (req) => {
     return token
 }
 
-pollsRouter.get('/',  async (req, res) => {
+pollsRouter.get('/', async (req, res) => {
     const polls = await Poll
         .find({})
-        .populate('user',{username: 1, name:1})
+        .populate('user', { username: 1, name: 1 })
     return res.json(polls.map(formatPoll))
 })
 
-pollsRouter.get('/:id', async (req, res) => {
+pollsRouter.get('/newpoll', passport.authenticate('jwt', { session: false }), async (req, res, err) => {
+
+    try {
+
+        const token = getTokenFromRequest(req)
+
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET)
+
+        re
+
+    } catch (e) {
+        console.log(e)
+
+    }
+})
+
+pollsRouter.get('/poll/:id', async (req, res) => {
     try {
         const poll = await Poll.findById(req.params.id)
         return res.status(202).json(poll)
@@ -27,7 +43,7 @@ pollsRouter.get('/:id', async (req, res) => {
     }
 })
 
-pollsRouter.post('/',  passport.authenticate('jwt', { session: false }), async (req, res) => {
+pollsRouter.post('/', passport.authenticate('jwt', { session: false }), async (req, res) => {
     const body = req.body
 
     if (body.question === undefined) {
@@ -42,12 +58,12 @@ pollsRouter.post('/',  passport.authenticate('jwt', { session: false }), async (
 
         const token = getTokenFromRequest(req)
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET)
-        
+
         const userId = Object.values(decodedToken)[2]
 
         const user = await User.findById(userId);
-    
-    
+
+
         const poll = await
             new Poll({
                 question: body.question,
@@ -67,7 +83,7 @@ pollsRouter.post('/',  passport.authenticate('jwt', { session: false }), async (
     }
 })
 
-pollsRouter.put('/:id', async (req, res) => {
+pollsRouter.put('/poll/:id', async (req, res) => {
 
     try {
 
@@ -87,7 +103,7 @@ pollsRouter.put('/:id', async (req, res) => {
 
 })
 
-pollsRouter.delete('/:id', async (req, res) => {
+pollsRouter.delete('/poll/:id', async (req, res) => {
 
     try {
         Poll
