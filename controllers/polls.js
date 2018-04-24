@@ -15,6 +15,7 @@ pollsRouter.get('/', async (req, res) => {
     const polls = await Poll
         .find({})
         .populate('user', { username: 1, name: 1 })
+        .sort({dateAdded: -1})
     return res.json(polls.map(formatPoll))
 })
 
