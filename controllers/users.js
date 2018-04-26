@@ -13,6 +13,8 @@ userRouter.get('/', async (req, res) => {
     res.json(users.map(formatUser))
 })
 
+
+
 userRouter.post('/', async (req, res) => {
     try {
         const body = req.body
