@@ -11,11 +11,15 @@ const getTokenFromRequest = (req) => {
     return token
 }
 
+const getUserIdFromHeader = (req) => {
+    return req.headers['userid']
+}
+
 pollsRouter.get('/', async (req, res) => {
     const polls = await Poll
         .find({})
         .populate('user', { username: 1, name: 1 })
-        .sort({dateAdded: -1})
+        .sort({ dateAdded: -1 })
     return res.json(polls.map(formatPoll))
 })
 
@@ -84,6 +88,8 @@ pollsRouter.post('/', passport.authenticate('jwt', { session: false }), async (r
     }
 })
 
+
+//Voting route
 pollsRouter.put('/poll/:id', async (req, res) => {
 
     try {
@@ -104,21 +110,41 @@ pollsRouter.put('/poll/:id', async (req, res) => {
 
 })
 
-pollsRouter.delete('/poll/:id', async (req, res) => {
+pollsRouter.delete('/poll/:id', passport.authenticate('jwt', { session: false }), async (req, res) => {
 
     try {
-        Poll
-            .findByIdAndRemove(req.params.id)
-            .then(result => {
-                res.status(204).end()
+
+        const poll = await Poll.findById(req.params.id)
+
+        const token = getTokenFromRequest(req)
+        const userId = getUserIdFromHeader(req)
+
+        const user = await User.findById(userId)
+
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET)
+
+        if (!token || !decodedToken) {
+            return status(401).json({ error: 'Token missing or invalid' })
+        }
+
+        if (poll.user.toString() === decodedToken._id.toString()) {
+            await poll.remove()
+            
+            const filteredPolls = user.polls.filter(removedPoll => removedPoll.toString() !== poll._id.toString())
+
+            await User.findByIdAndUpdate(userId, {
+                polls: filteredPolls
             })
-            .catch(error => {
-                res.status(404).send({ error: 'Unknown id' })
-            })
+
+            return res.status(204).send("Poll removed").end()
+        }
+
+        return res.status(403).send('Not authorized')
 
     } catch (err) {
         return res.status(400).send({ error: 'Failed to delete' })
     }
+
 })
 
 module.exports = pollsRouter
