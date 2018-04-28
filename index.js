@@ -17,7 +17,7 @@ const config = require('./utils/config')
 mongoose.connect(config.mongoUrl)
 mongoose.Promise = global.Promise
 
-
+app.use(express.static('build'))
 app.use(bodyParser.json())
 app.use(cookieParser())
 app.use(cors())
