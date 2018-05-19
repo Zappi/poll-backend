@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "watch": "nodemon index.js",
-    "test": "jest --vebose"
+    "watch": "nodemon index.js"
   },
   "author": "Jerry Tamlander",
   "license": "ISC",
