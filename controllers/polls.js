@@ -40,6 +40,7 @@ pollsRouter.get('/newpoll', passport.authenticate('jwt', { session: false }), as
 })
 
 pollsRouter.get('/poll/:id', async (req, res) => {
+
     try {
         const poll = await Poll.findById(req.params.id)
         return res.status(202).json(poll)
@@ -57,6 +58,10 @@ pollsRouter.post('/', passport.authenticate('jwt', { session: false }), async (r
 
     if (body.options.length > 5) {
         return res.status(400).send({ error: 'No more than 5 options is allowed' })
+    }
+
+    if(body.options.length < 2) {
+        return res.status(400).send({error: 'Poll must have at least 2 options'})
     }
 
     try {
@@ -89,8 +94,8 @@ pollsRouter.post('/', passport.authenticate('jwt', { session: false }), async (r
 })
 
 
-//Voting route
-pollsRouter.put('/poll/:id', async (req, res) => {
+//Handles the user voting by updating the poll
+pollsRouter.put('/poll/:id', passport.authenticate('jwt', { session: false }), async (req, res) => {
 
     try {
 
